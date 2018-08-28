@@ -14,18 +14,17 @@ monikerRange: 'vsts'
 
 # Helm
 
-This guidance explains how to use **Helm**[https://www.helm.sh/] to package a Docker based application in to a Helm chart.
+This guidance explains how to use [Helm](https://www.helm.sh/) to package a Docker based application in to a Helm chart.
 
-Helm is a tool that streamlines deploying and managing Kubernetes applications using a packaging format called **charts**[https://github.com/helm/helm/blob/master/docs/charts.md].
-When the deployment target is Kubernetes, Helm Charts make it simple to package and deploy common applications on Kubernetes.  
+Helm is a tool that streamlines deploying and managing Kubernetes applications using a packaging format called [charts](https://github.com/helm/helm/blob/master/docs/charts.md).
 You can define, version, share, install, and upgrade even the most complex Kubernetes application using Helm. 
 
 A Helm chart consists of metadata, definitions, config and documentation. This can be either stored in the same code repository as your application code or in a separate repository. 
 Helm can package these files into a chart archive (*.tgz file), which gets deployed to a Kubernetes cluster. 
 
-A typical Helm chart will have the following structure: 
+A typical Continuous integration flow with Helm will have the following structure: 
 ![Helm Chart Example](_img/Helmchart_example.png)
-
+The steps required to build a container image and pushing it to a container registry remains the same. Once that has been the done, we start creating a Helm Chart archive package. 
 
 ## Define your CI build process using Helm
 
@@ -50,15 +49,12 @@ https://github.com/adventworks/dotnetcore-k8s-sample
 
 ```
 
-
-
-
 ## Package and publish a Helm chart
 
-Extend the build pipeline created to build Docker image](../../languages/docker.md) to use Helm:
+1. In the **Build &amp; Release** hub, open the the [build pipeline] (../../languages/docker.md) created to build and publish a Docker image.
 
-1. Add **Helm tool installer** task
-2. Click on **+** icon again to add new **Package and deploy Helm charts** task
+2. Select Tasks tab and click on **+** icon  to add **Helm tool installer** task  to ensure that the agent which runs the subsequent tasks has Helm and Kubernetes installed on it.
+3. Click on **+** icon again to add new **Package and deploy Helm charts** task
    Configure the properties as follows:
    
    - **Azure Subscription**: Select a connection from the list under **Available Azure Service Connections** or create a more restricted permissions connection to your Azure subscription.
@@ -70,40 +66,23 @@ Extend the build pipeline created to build Docker image](../../languages/docker.
    - **Kubernetes cluster**: Enter or select the **AKS cluster** you have created.  
    
    - **Command**: Select **init** as Helm command.
+     
+   -**Arguments**: Provide additional arguments for the Helm command. In this case set this field as "--client-only" to ensure the installation of only the Helm client.
    
-3. Again click on **+** icon to add another **Package and deploy Helm charts** task
+4. Again click on **+** icon to add another **Package and deploy Helm charts** task
    Configure the properties as follows:
    
-   - **Azure Subscription**: Select a connection from the list under **Available Azure Service Connections** or create a more restricted permissions connection to your Azure subscription.
-     If you are using VSTS and if you see an **Authorize** button next to the input, click on it to authorize VSTS to connect to your Azure subscription. If you are using TFS or if you do not see
-     the desired Azure subscription in the list of subscriptions, see [Azure Resource Manager service connection](../../library/connect-to-azure.md) to manually set up the connection.
+   - **Command**: Select **package** as Helm command.    When you select **package** as the helm command, the task recognizes it and shows only the relevant fields.
 
-   - **Resource Group**: Enter or select the resource group of your **AKS cluster**.  
+   - **Chart Path**: Enter the path to your Helm chart. 
    
-   - **Kubernetes cluster**: Enter or select the **AKS cluster** you have created.  
+   -**Version**: Specify the exact chart version to install. If this is not specified, the latest version is installed. Set the version on the chart to this semver version.
    
-   - **Namespace**: Enter your Kubernetes cluster namespace where you want to deploy. If you don't have one, enter **dev**.
-
-   - **Command**: Select **upgrade** as Helm command.
-
-   When you select the **upgrade** as helm command, the task recognizes it and shows some additional fields.
-
-   - **Chart Type**: Select **File Path** as Chart type.
-
-   - **Chart Path**: Enter the path to your Helm chart. If you are publishing it using CI build, you can pick the file package by clicking on file picker.
-   Or simply enter $(System.DefaultWorkingDirectory)/**/*.tgz
-
-   - **Release Name**: Give any name to your release. For example **azuredevops**
+   -**Destination**: Choose the destination to publish the Helm chart. If it is the working directory, just set "$(Build.ArtifactStagingDirectory)"
    
-   - **Arguments**: Enter the arguments and their value here. If you are using sample application for this document
+   -**Update dependency**: Tick this checkbox to run helm dependency update before installing the chart. It updates dependencies from 'requirements.yaml' to dir 'charts/' before packaging
    
-    ```
-    --set image.repository=$(imageRepoName) --set image.tag=$(Build.BuildId) 
-    --set ingress.enabled=true --set ingress.hostname=$(hostName)
+5. Again click on **+** icon to add a **Publish Artifacts** task
 
-    ```
-   > Either set the values of $(imageRepoName) in the variable section or replace it with your image repository name, which is typically of format `name.azurecr.io/coderepository`
-   > You can find $(hotname) values in the Azure portal in the **Overview** and **Repositories** tabs for your AKS Cluster.
-
-4. Save the build pipeline.
+6. Save the build pipeline.
 
