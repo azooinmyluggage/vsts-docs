@@ -51,11 +51,11 @@ https://github.com/adventworks/dotnetcore-k8s-sample
 
 ## Package and publish a Helm chart
 
-1. In the **Build &amp; Release** hub, open the the [build pipeline] (../../languages/docker.md) created to build and publish a Docker image.
+1. In the **Build &amp; Release** hub, open the the [build pipeline](../../languages/docker.md) created to build and publish a Docker image.
 
 2. Select Tasks tab and click on **+** icon  to add **Helm tool installer** task  to ensure that the agent which runs the subsequent tasks has Helm and Kubernetes installed on it.
-3. Click on **+** icon again to add new **Package and deploy Helm charts** task
-   Configure the properties as follows:
+3. Click on **+** icon again to add new **Package and deploy Helm charts** task.
+Configure the properties as follows:
    
    - **Azure Subscription**: Select a connection from the list under **Available Azure Service Connections** or create a more restricted permissions connection to your Azure subscription.
      If you are using VSTS and if you see an **Authorize** button next to the input, click on it to authorize VSTS to connect to your Azure subscription. If you are using TFS or if you do not see
