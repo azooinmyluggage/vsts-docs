@@ -40,7 +40,7 @@ To set up a CI build process, see:
 
 You'll need an Azure subscription. You can get one free through [Visual Studio Dev Essentials](https://visualstudio.microsoft.com/dev-essentials/).
 
-## Create an Azure web app to host a container
+## Create an Azure Kubernetes cluster to host a container
 
 1. Sign into Azure at [https://portal.azure.com](https://portal.azure.com).
 
@@ -73,7 +73,7 @@ The AKS cluster you created here will host an instance of that image and expose 
    ![Adding the App Service Deployment task](_img/add-empty-process.png)
 
 4. Go to **Environment 1** and click on **+** icon to add new task
-5. Add **Helm tool installer** task
+5. Add **Helm tool installer** task to ensure that the agent which runs the subsequent tasks has Helm and Kubernetes installed on it.
 6. Click on **+** icon again to add new **Package and deploy Helm charts** task
    Configure the properties as follows:
    
@@ -85,9 +85,9 @@ The AKS cluster you created here will host an instance of that image and expose 
    
    - **Kubernetes cluster**: Enter or select the **AKS cluster** you have created.  
    
-   - **Command**: Select **init** as Helm command.
+   - **Command**: Select **init** as Helm command. This will install Tiller to your running Kubernetes cluster. It will also set up any necessary local configuration. Tick **Use canary image version** to install the latest pre-release version of Tiller. You could also choose to upgrade tiller if it is pre-installed by ticking on **Upgrade Tiller**
    
-7. Again click on **+** icon to add another **Package and deploy Helm charts** task
+7. Again click on **+** icon to add another **Package Helm charts** task
    Configure the properties as follows:
    
    - **Azure Subscription**: Select a connection from the list under **Available Azure Service Connections** or create a more restricted permissions connection to your Azure subscription.
@@ -98,7 +98,7 @@ The AKS cluster you created here will host an instance of that image and expose 
    
    - **Kubernetes cluster**: Enter or select the **AKS cluster** you have created.  
    
-   - **Namespace**: Enter your Kubernetes cluster namespace where you want to deploy. If you don't have one, enter **dev**.
+   - **Namespace**: Enter your Kubernetes cluster namespace where you want to deploy. If you don't have one, enter **dev**. This might help a CI/CD scenario where there is a segregation between environments and we can have a limited access tillers to each namespace allowing to segregate staging deploy from production deploy.
 
    - **Command**: Select **upgrade** as Helm command.
 
@@ -111,12 +111,11 @@ The AKS cluster you created here will host an instance of that image and expose 
 
    - **Release Name**: Give any name to your release. For example **azuredevops**
    
-   - **Arguments**: Enter the arguments and their values here. If you are using sample application for this document
+   - **Arguments**: Enter the arguments and their values here. You could also specify te same in **Set Values** field as comma separated key-value pairs or provide a **Value File** . Ensure traceabilty for the Helm chart by tagging it with source repository and Build ID as below:
    
     ```
     --set image.repository=$(imageRepoName) --set image.tag=$(Build.BuildId) 
-    --set ingress.enabled=true --set ingress.hostname=$(hostName)
-
+   
     ```
    > Either set the values of $(imageRepoName) in the variable section or replace it with your image repository name, which is typically of format `name.azurecr.io/coderepository`
    > You can find $(hotname) values in the Azure portal in the **Overview** and **Repositories** tabs for your AKS Cluster.
