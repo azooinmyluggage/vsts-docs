@@ -127,6 +127,11 @@ The AKS cluster you created here will host an instance of that image and expose 
  - **Reset Values**: Tick this checkbox if you need the values built into the chart to override all values provided from the task.
  - **Recreate Pods**: Tick this checkbox if there is a configuration change during the release and you want to replace a running pod with new configuration
  - **Force**: Tick this checkbox if you want to upgrade and rollback to delete and recreate the resurce and re-install the full release when there any any conflicts. This is useful in scenarios where applying patches can fail (e.g., for services, because clusterIp is immutable). 
+ 
+ - **Enable TLS**: Tick this checkbox to enable strong TLS based connections between Helm and Tiller. When this option is enabled, the task recognizes it and shows some additional fields.
+ - **CA certificate**: Upload a CA cert used to issue certificate for tiller and helm client.
+ - **Certificate**: Specify Tiller certificate or Helm client certificate
+ - **Key**: pecify Tiller Key or Helm client key
 
 8. Save the release pipeline.
 
