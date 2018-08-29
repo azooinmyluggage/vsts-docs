@@ -17,7 +17,7 @@ monikerRange: 'vsts'
 We'll show you how to set up continuous deployment of your containerized application to an Azure Kubernetes Service (AKS) using
 Azure Pipelines.
 
-After you commit and push a code change, it is be automatically built and then deployed. The results will automatically show up on your site.
+After you commit and push a code change, it will be automatically built and deployed to the target Kubernetes cluster.
 
 ## Example
 
@@ -31,7 +31,7 @@ https://github.com/adventworks/dotnetcore-k8s-sample
 
 ## Define your CI build process
 
-You'll need a continuous integration (CI) build process that publishes a container image to any container registry (for example: Azure Container Registry) and a Helm chart.
+You'll need a continuous integration (CI) build process that publishes a container image to a container registry (for example: Azure Container Registry) and packages a Helm chart.
 To set up a CI build process, see:
 
 * [Build Docker image and publish Helm chart](../../languages/docker.md).
@@ -40,13 +40,13 @@ To set up a CI build process, see:
 
 You'll need an Azure subscription. You can get one free through [Visual Studio Dev Essentials](https://visualstudio.microsoft.com/dev-essentials/).
 
-## Create an Azure Kubernetes cluster to host a container
+## Create an AKS to host your app
 
 1. Sign into Azure at [https://portal.azure.com](https://portal.azure.com).
 
 2. In the Azure Portal, choose **Create a resource**, **New**, **Containers**, then choose **Kubernetes Service**.    
 
-3. Select or create a new Resource Group, enter name for your new Kubernetes cluster and DNS name prefix
+3. Select or create a new Resource Group, enter name for your new Kubernetes Service cluster and DNS name prefix
 
    ![Creating the Web App for Containers](_img/create-aks-cluster.png)
 
@@ -54,9 +54,8 @@ You'll need an Azure subscription. You can get one free through [Visual Studio D
 
 5. Wait until the new AKS cluster has been created. Then you can create a release pipeline as shown in the next section.
 
-The **Docker** tasks you used in the build pipeline when you created the
-build artifacts push the Docker image back into your Azure Container Registry.
-The AKS cluster you created here will host an instance of that image and expose it as a website.
+The build pipeline has already built a Docker image and pushed it to a Azure Container Registry. It has also packaged and published a Helm chart as an artifact. In the release pipleine we will deploy the container image as a Helm application to the AKS cluster.
+
 
 ## Create a release pipeline
 
@@ -73,10 +72,12 @@ The AKS cluster you created here will host an instance of that image and expose 
    ![Adding the App Service Deployment task](_img/add-empty-process.png)
 
 4. Go to **Environment 1** and click on **+** icon to add new task
-5. Add **Helm tool installer** task to ensure that the agent which runs the subsequent tasks has Helm and Kubernetes installed on it.
+5. Add **Helm tool installer** task to ensure that the agent which runs the subsequent tasks has Helm and Kubectl installed on it.
 6. Click on **+** icon again to add new **Package and deploy Helm charts** task
    Configure the properties as follows:
-   
+
+   - **Connection Type**: Select ‘Azure Resource Manager’ to connect to an AKS cluster by using Azure Service Connection.  Select ‘Container registry’ to connect to any Kubernetes cluster by using kubeconfig or Service Account.
+ 
    - **Azure Subscription**: Select a connection from the list under **Available Azure Service Connections** or create a more restricted permissions connection to your Azure subscription.
      If you are using VSTS and if you see an **Authorize** button next to the input, click on it to authorize VSTS to connect to your Azure subscription. If you are using TFS or if you do not see
      the desired Azure subscription in the list of subscriptions, see [Azure Resource Manager service connection](../../library/connect-to-azure.md) to manually set up the connection.
@@ -85,7 +86,7 @@ The AKS cluster you created here will host an instance of that image and expose 
    
    - **Kubernetes cluster**: Enter or select the **AKS cluster** you have created.  
    
-   - **Command**: Select **init** as Helm command. This will install Tiller to your running Kubernetes cluster. It will also set up any necessary local configuration. Tick **Use canary image version** to install the latest pre-release version of Tiller. You could also choose to upgrade tiller if it is pre-installed by ticking on **Upgrade Tiller**
+   - **Command**: Select **init** as Helm command. This will install Tiller to your running Kubernetes cluster. It will also set up any necessary local configuration. Tick **Use canary image version** to install the latest pre-release version of Tiller. You could also choose to upgrade tiller if it is pre-installed by ticking on **Upgrade Tiller**.
    
 7. Again click on **+** icon to add another **Package Helm charts** task
    Configure the properties as follows:
@@ -98,21 +99,27 @@ The AKS cluster you created here will host an instance of that image and expose 
    
    - **Kubernetes cluster**: Enter or select the **AKS cluster** you have created.  
    
-   - **Namespace**: Enter your Kubernetes cluster namespace where you want to deploy. If you don't have one, enter **dev**. This might help a CI/CD scenario where there is a segregation between environments and we can have a limited access tillers to each namespace allowing to segregate staging deploy from production deploy. Tiller namespace can be specified in the advanced section of the task or by passing the --tiller-namespace option as argument.
+   - **Namespace**: Enter your Kubernetes cluster namespace where you want to deploy your application. Kubernetes supports multiple virtual clusters backed by the same physical cluster. These virtual clusters are called namespaces. You can use Namespace to create diferent environments like dev/test/staging in the same cluster. 
 
-   - **Command**: Select **upgrade** as Helm command.
+   - **Command**: Select **upgrade** as Helm command. You can run any Helm command by using the task and passing command options as arguments.
 
    When you select the **upgrade** as helm command, the task recognizes it and shows some additional fields.
 
-   - **Chart Type**: Select **File Path** as Chart type.
-
-   - **Chart Path**: Enter the path to your Helm chart. If you are publishing it using CI build, you can pick the file package by clicking on file picker.
-   Or simply enter $(System.DefaultWorkingDirectory)/**/*.tgz
+   - **Chart Type**: Select **File Path** as Chart type. You can also specify **Chart Name** which can be a url or a chart name. For example: If Chart name is ‘stable/mysql’, the task will run ‘helm install stable/mysql’. 
+   
+   Since in our build pipeline we packaged and published the chart, we will use File Path.   
+   
+   - **Chart Path**: Chart path can be a path to a packaged chart or a path to an unpacked chart directory. If you are publishing it using CI build, you can pick the file package by clicking on file picker.  Or simply enter $(System.DefaultWorkingDirectory)/**/*.tgz
+   
+   For example if ‘./redis’ is specified the task will run ‘helm install ./redis’.
 
    - **Release Name**: Give any name to your release. For example **azuredevops**
    
-   - **Arguments**: Enter the Helm command arguments and their values here. You could ensure end-to-end traceability from code to deployment for the Helm chart by tagging it with source repository and by using a build-specific tag/Build ID for each deployment  as below:
+   - **Arguments**: Enter the Helm command arguments and their values here. In the build pipeline we tagged the container image with $(Build.BuildId) and pushed it to an Azure Container Registry. 
    
+   In the Helm chart you will parameterizes the conatiner image details like name and tag because the same Helm chart can be used for deploying to different environments. These values can be specified in the values.yaml file of the chart or be overridden by a user-supplied values file, which can in turn be overridden by --set parameters during helm install or helm upgrade.
+   
+   For our sample app we will pass the following:   
     ```
     --set image.repository=$(imageRepoName) --set image.tag=$(Build.BuildId) 
    
@@ -121,7 +128,7 @@ The AKS cluster you created here will host an instance of that image and expose 
  
  - **Set Values**: You could also specify the values in this field as comma separated key-value pairs or provide a **Value File** which can be a YAML file or a URL. Using Value file helps in passing secrets (like configuration settings) as well, without the need to store them in the package.
      ```
-    When you're using Azure Container Registry (ACR) with Azure Kubernetes Service (AKS), an authentication mechanism needs to be established, which our Helm/Docker tasks automatically take care of. You can also create a new service principal and grant custom access permissions to the container registry using a [Kubernetes image pull secret](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-auth-aks#access-with-kubernetes-secret).
+    When you're using Azure Container Registry (ACR) with Azure Kubernetes Service (AKS), an authentication mechanism needs to be established. this can be achieved in two ways: One if by granting AKS access to ACR https://docs.microsoft.com/en-us/azure/container-registry/container-registry-auth-aks#grant-aks-access-to-acr. You can also use [Kubernetes image pull secret](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-auth-aks#access-with-kubernetes-secret). Image pull secret can be created by using Kubernetes deploy task
    
     ```
  - **Reset Values**: Tick this checkbox if you need the values built into the chart to override all values provided from the task.
