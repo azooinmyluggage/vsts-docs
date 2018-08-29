@@ -111,7 +111,7 @@ The AKS cluster you created here will host an instance of that image and expose 
 
    - **Release Name**: Give any name to your release. For example **azuredevops**
    
-   - **Arguments**: Enter the arguments and their values here. You could also specify the same in **Set Values** field as comma separated key-value pairs or provide a **Value File** which can be a YAML file or a URL . You could ensure end-to-end traceability from code to deployment for the Helm chart by tagging it with source repository and by using a build-specific tag/Build ID for each deployment  as below:
+   - **Arguments**: Enter the Helm command arguments and their values here. You could ensure end-to-end traceability from code to deployment for the Helm chart by tagging it with source repository and by using a build-specific tag/Build ID for each deployment  as below:
    
     ```
     --set image.repository=$(imageRepoName) --set image.tag=$(Build.BuildId) 
@@ -119,9 +119,14 @@ The AKS cluster you created here will host an instance of that image and expose 
     ```
    > Either set the values of $(imageRepoName) in the variable section or replace it with your image repository name, which is typically of format `name.azurecr.io/coderepository`
  
-- **Reset Values**: Tick this checkbox if you need the values built into the chart to override all values provided from the task.
-- **Recreate Pods**: Tick this checkbox if there is a configuration change during the release and you want to replace a running pod with new configuration
-- **Force**: Tick this checkbox if you want to upgrade and rollback to delete and recreate the resurce and re-install the full release when there any any conflicts. This is useful in scenarios where applying patches can fail (e.g., for services, because clusterIp is immutable). 
+ - **Set Values**: You could also specify the values in this field as comma separated key-value pairs or provide a **Value File** which can be a YAML file or a URL. Using Value file helps in passing secrets (like configuration settings) as well, without the need to store them in the package.
+     ```
+    When you're using Azure Container Registry (ACR) with Azure Kubernetes Service (AKS), an authentication mechanism needs to be established, which our Helm/Docker tasks automatically take care of. You can also create a new service principal and grant custom access permissions to the container registry using a [Kubernetes image pull secret](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-auth-aks#access-with-kubernetes-secret).
+   
+    ```
+ - **Reset Values**: Tick this checkbox if you need the values built into the chart to override all values provided from the task.
+ - **Recreate Pods**: Tick this checkbox if there is a configuration change during the release and you want to replace a running pod with new configuration
+ - **Force**: Tick this checkbox if you want to upgrade and rollback to delete and recreate the resurce and re-install the full release when there any any conflicts. This is useful in scenarios where applying patches can fail (e.g., for services, because clusterIp is immutable). 
 
 8. Save the release pipeline.
 
