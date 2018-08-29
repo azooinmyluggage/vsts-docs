@@ -19,12 +19,23 @@ This guidance explains how to use [Helm](https://www.helm.sh/) to package a Dock
 Helm is a tool that streamlines deploying and managing Kubernetes applications using a packaging format called [charts](https://github.com/helm/helm/blob/master/docs/charts.md).
 You can define, version, share, install, and upgrade even the most complex Kubernetes application using Helm. 
 
+•	It helps you combine multiple Kubernetes manifests (yaml) like service, deployments, configmaps etc. in to a single unit called Helm Charts. You don’t need to either invent or use a tokenization or templating tool.
+•	Helm Charts also help you manage application dependencies and deploy as well as rollback as a unit. They are also easy to create, version, publish and share with other partner teams
+
+
 A Helm chart consists of metadata, definitions, config and documentation. This can be either stored in the same code repository as your application code or in a separate repository. 
 Helm can package these files into a chart archive (*.tgz file), which gets deployed to a Kubernetes cluster. 
 
 A typical Continuous integration flow with Helm will have the following structure: 
 ![Helm Chart Example](_img/Helmchart_example.png)
 The steps required to build a container image and pushing it to a container registry remains the same. Once that has been the done, we start creating a Helm Chart archive package. 
+
+Azure DevOps has built-in support for Helm charts:
+1.	Helm Tool installer task can be used to get the right version of Helm on the agents.
+2.	Helm package and deploy task can be used to package the application and deploy it to a Kubernetes cluster.
+3.	You can use the task to install/update Tiller to a Kubernetes namespace, securely connect to the Tiller over TLS for deploying charts, use the task to run any Helm command like lint
+4.	The Helm task also supports connecting to an Azure Kubernetes Service by using Azure Service Connection. You can connect to any Kubernetes cluster by using kubeconfig or Service Account as well.
+5.	The Helm deployments can be supplemented by using Kubectl task. For example create/update imagepullsecret
 
 ## Define your CI build process using Helm
 
@@ -56,6 +67,7 @@ https://github.com/adventworks/dotnetcore-k8s-sample
 2. Select Tasks tab and click on **+** icon  to add **Helm tool installer** task  to ensure that the agent which runs the subsequent tasks has Helm and Kubernetes installed on it.
 3. Click on **+** icon again to add new **Package and deploy Helm charts** task.
 Configure the properties as follows:
+   - **Connection Type**: Select ‘Azure Resource Manager’ to connect to an AKS cluster by using Azure Service Connection.  Select ‘Container registry’ to connect to any Kubernetes cluster by using kubeconfig or Service Account.
    
    - **Azure Subscription**: Select a connection from the list under **Available Azure Service Connections** or create a more restricted permissions connection to your Azure subscription.
      If you are using VSTS and if you see an **Authorize** button next to the input, click on it to authorize VSTS to connect to your Azure subscription. If you are using TFS or if you do not see
@@ -76,7 +88,7 @@ Configure the properties as follows:
 
    - **Chart Path**: Enter the path to your Helm chart. 
    
-   -**Version**: Specify the exact chart version to install. If this is not specified, the latest version is installed. Set the version on the chart to this semver version.
+   -**Version**: Specify a semver version to the chart.
    
    -**Destination**: Choose the destination to publish the Helm chart. If it is the working directory, just set "$(Build.ArtifactStagingDirectory)"
    
