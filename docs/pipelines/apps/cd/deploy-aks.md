@@ -98,7 +98,7 @@ The AKS cluster you created here will host an instance of that image and expose 
    
    - **Kubernetes cluster**: Enter or select the **AKS cluster** you have created.  
    
-   - **Namespace**: Enter your Kubernetes cluster namespace where you want to deploy. If you don't have one, enter **dev**. This might help a CI/CD scenario where there is a segregation between environments and we can have a limited access tillers to each namespace allowing to segregate staging deploy from production deploy.
+   - **Namespace**: Enter your Kubernetes cluster namespace where you want to deploy. If you don't have one, enter **dev**. This might help a CI/CD scenario where there is a segregation between environments and we can have a limited access tillers to each namespace allowing to segregate staging deploy from production deploy. Tiller namespace can be specified in the advanced section of the task or by passing the --tiller-namespace option as argument.
 
    - **Command**: Select **upgrade** as Helm command.
 
@@ -111,14 +111,17 @@ The AKS cluster you created here will host an instance of that image and expose 
 
    - **Release Name**: Give any name to your release. For example **azuredevops**
    
-   - **Arguments**: Enter the arguments and their values here. You could also specify te same in **Set Values** field as comma separated key-value pairs or provide a **Value File** . Ensure traceabilty for the Helm chart by tagging it with source repository and Build ID as below:
+   - **Arguments**: Enter the arguments and their values here. You could also specify the same in **Set Values** field as comma separated key-value pairs or provide a **Value File** which can be a YAML file or a URL . You could ensure traceabilty for the Helm chart by tagging it with source repository and Build ID as below:
    
     ```
     --set image.repository=$(imageRepoName) --set image.tag=$(Build.BuildId) 
    
     ```
    > Either set the values of $(imageRepoName) in the variable section or replace it with your image repository name, which is typically of format `name.azurecr.io/coderepository`
-   > You can find $(hotname) values in the Azure portal in the **Overview** and **Repositories** tabs for your AKS Cluster.
+ 
+- **Reset Values**: Tick this checkbox if you need the values built into the chart to override all values provided from the task.
+- **Recreate Pods**: Tick this checkbox if there is a configuration change during the release and you want to replace a running pod with new configuration
+- **Force**: Tick this checkbox if you want to upgrade and rollback to delete and recreate the resurce and re-install the full release when there any any conflicts. This is useful in scenarios where applying patches can fail (e.g., for services, because clusterIp is immutable). 
 
 8. Save the release pipeline.
 
