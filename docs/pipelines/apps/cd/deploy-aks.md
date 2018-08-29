@@ -111,7 +111,7 @@ The AKS cluster you created here will host an instance of that image and expose 
 
    - **Release Name**: Give any name to your release. For example **azuredevops**
    
-   - **Arguments**: Enter the arguments and their values here. You could also specify the same in **Set Values** field as comma separated key-value pairs or provide a **Value File** which can be a YAML file or a URL . You could ensure traceabilty for the Helm chart by tagging it with source repository and Build ID as below:
+   - **Arguments**: Enter the arguments and their values here. You could also specify the same in **Set Values** field as comma separated key-value pairs or provide a **Value File** which can be a YAML file or a URL . You could ensure end-to-end traceability from code to deployment for the Helm chart by tagging it with source repository and by using a build-specific tag/Build ID for each deployment  as below:
    
     ```
     --set image.repository=$(imageRepoName) --set image.tag=$(Build.BuildId) 
