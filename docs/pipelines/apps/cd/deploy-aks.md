@@ -86,7 +86,7 @@ The build pipeline used to set up CI has already built a Docker image and pushed
    
    - **Kubernetes cluster**: Enter or select the **AKS cluster** you have created.  
    
-   - **Command**: Select **init** as Helm command. This will install Tiller to your running Kubernetes cluster. It will also set up any necessary local configuration. Tick **Use canary image version** to install the latest pre-release version of Tiller. You could also choose to upgrade tiller if it is pre-installed by ticking on **Upgrade Tiller**.
+   - **Command**: Select **init** as Helm command. This will install Tiller to your running Kubernetes cluster. It will also set up any necessary local configuration. Tick **Use canary image version** to install the latest pre-release version of Tiller. You could also choose to upgrade tiller if it is pre-installed by ticking on **Upgrade Tiller**. If these options are enabled, the task will run 'helm init --canary-image --upgrade'
    
 7. Again click on **+** icon to add another **Package Helm charts** task
    Configure the properties as follows:
@@ -99,7 +99,7 @@ The build pipeline used to set up CI has already built a Docker image and pushed
 
    When you select the **upgrade** as helm command, the task recognizes it and shows some additional fields.
 
-   - **Chart Type**: Select **File Path** as Chart type. You can also specify **Chart Name** which can be a url or a chart name. For example: If Chart name is ‘stable/mysql’, the task will run ‘helm install stable/mysql’. 
+   - **Chart Type**: Select **File Path** as Chart type. You can also specify **Chart Name** which can be a url or a chart name. For example: If Chart name is ‘stable/mysql’, the task will run ‘helm upgrade stable/mysql’. 
    
    Since in our build pipeline we packaged and published the chart, we will use File Path.   
    
@@ -129,10 +129,12 @@ The build pipeline used to set up CI has already built a Docker image and pushed
  - **Recreate Pods**: Tick this checkbox if there is a configuration change during the release and you want to replace a running pod with new configuration
  - **Force**: Tick this checkbox if you want to upgrade and rollback to delete, recreate the resource and re-install the full release when there are any conflicts. This is useful in scenarios where applying patches can fail (e.g., for services, because clusterIp is immutable). 
  
+ If the above options are chosen, then the task will run ‘helm upgrade --reset-values --recreate-pods --force’
+ 
  - **Enable TLS**: Tick this checkbox to enable strong TLS based connections between Helm and Tiller. When this option is enabled, the task recognizes it and shows some additional fields.
  - **CA certificate**: Upload a CA cert used to issue certificate for tiller and helm client.
  - **Certificate**: Specify Tiller certificate or Helm client certificate
- - **Key**: pecify Tiller Key or Helm client key
+ - **Key**: Specify Tiller Key or Helm client key
 
 8. Save the release pipeline.
 
