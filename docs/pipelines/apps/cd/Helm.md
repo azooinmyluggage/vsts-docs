@@ -87,13 +87,13 @@ Configure the properties as follows:
    - **Command**: Select **package** as Helm command. You can run any Helm command by using the task and passing command options as arguments.
    When you select **package** as the helm command, the task recognizes it and shows only the relevant fields.
 
-   - **Chart Path**: Enter the path to your Helm chart. Chart path can be a path to a packaged chart or a path to an unpacked chart directory. For example if ‘./redis’ is specified the task will run ‘helm package ./redis’.
+   - **Chart Path**: Enter the path to your Helm chart. Chart path can be a path to a packaged chart or a path to an unpacked chart directory. For example if ‘./redis’ is specified the task will run ‘helm package ./redis’. 
    
    -**Version**: Specify a semver version to be set on the chart.
    
    -**Destination**: Choose the destination to publish the Helm chart. If it is the working directory, just set "$(Build.ArtifactStagingDirectory)"
    
-   -**Update dependency**: Tick this checkbox to run helm dependency update before installing the chart. It updates dependencies from 'requirements.yaml' to dir 'charts/' before packaging
+   -**Update dependency**: Tick this checkbox to run helm dependency update before installing the chart. Task runs ‘helm package  --dependency-update’ and updates dependencies from 'requirements.yaml' to dir 'charts/' before packaging. 
    
 5. Again click on **+** icon to add a **Publish Artifacts** task
 
