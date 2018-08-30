@@ -119,8 +119,16 @@ The build pipeline used to set up CI has already built a Docker image and pushed
    
     ```
    > Either set the values of $(imageRepoName) in the variable section or replace it with your image repository name, which is typically of format `name.azurecr.io/coderepository`
+   
+   Here the assumption is that your Helm chart uses variables to be passed into your templates for image name and tag. For example the values.yaml file will have the following
+   ```
+   image:
+     repository: VALUE_TO_BE_OVERRIDDEN
+     tag: latest
+   ```
+   
+ - **Set Values**: You could also specify the values in this field as comma separated key-value pairs or provide a **Value File** which can be a YAML file or a URL.
  
- - **Set Values**: You could also specify the values in this field as comma separated key-value pairs or provide a **Value File** which can be a YAML file or a URL. Using Value file helps in passing secrets (like configuration settings) as well, without the need to store them in the package.
      ```
     When you're using Azure Container Registry (ACR) with Azure Kubernetes Service (AKS), an authentication mechanism needs to be established. this can be achieved in two ways: Either by granting AKS access to ACR https://docs.microsoft.com/en-us/azure/container-registry/container-registry-auth-aks#grant-aks-access-to-acr. Or by using [Kubernetes image pull secret](https://docs.microsoft.com/en-us/azure/container-registry/container-registry-auth-aks#access-with-kubernetes-secret). Image pull secret can be created by using Kubernetes deploy task.
    
@@ -149,8 +157,6 @@ You're now ready to create a release, which means to start the process of runnin
 3. Choose the release link in the information bar message. For example: "Release **Release-1** has been created".
 
 4. Open the **Logs** tab to watch the release console output.
-
-5. After the release is complete, navigate to your site running in Azure using the Web App URL `http://{web_app_name}.azurewebsites.net`, and verify its contents.
 
 
 ## Next steps
