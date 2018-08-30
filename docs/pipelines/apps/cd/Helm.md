@@ -19,15 +19,15 @@ This guidance explains how to use [Helm](https://www.helm.sh/) to package a Dock
 Helm is a tool that streamlines deploying and managing Kubernetes applications using a packaging format called [charts](https://github.com/helm/helm/blob/master/docs/charts.md).
 You can define, version, share, install, and upgrade even the most complex Kubernetes application using Helm. 
 
-•	It helps you combine multiple Kubernetes manifests (yaml) like service, deployments, configmaps etc. in to a single unit called Helm Charts. You don’t need to either invent or use a tokenization or templating tool.
-•	Helm Charts also help you manage application dependencies and deploy as well as rollback as a unit. They are also easy to create, version, publish and share with other partner teams
-
+1.	Helm helps you combine multiple Kubernetes manifests (yaml) like service, deployments, configmaps etc. in to a single unit called Helm Charts. You don’t need to either invent or use a tokenization or templating tool.
+2.	Helm Charts also help you manage application dependencies and deploy as well as rollback as a unit. They are also easy to create, version, publish and share with other partner teams
 
 A Helm chart consists of metadata, definitions, config and documentation. This can be either stored in the same code repository as your application code or in a separate repository. 
 Helm can package these files into a chart archive (*.tgz file), which gets deployed to a Kubernetes cluster. 
 
 A typical Continuous integration flow with Helm will have the following structure: 
 ![Helm Chart Example](_img/Helmchart_example.png)
+
 The steps required to build a container image and pushing it to a container registry remains the same. Once that has been the done, we start creating a Helm Chart archive package. 
 
 Azure DevOps has built-in support for Helm charts:
@@ -70,7 +70,7 @@ Configure the properties as follows:
    - **Connection Type**: Select ‘Azure Resource Manager’ to connect to an AKS cluster by using Azure Service Connection.  Select ‘Container registry’ to connect to any Kubernetes cluster by using kubeconfig or Service Account.
    
    - **Azure Subscription**: Select a connection from the list under **Available Azure Service Connections** or create a more restricted permissions connection to your Azure subscription.
-     If you are using VSTS and if you see an **Authorize** button next to the input, click on it to authorize VSTS to connect to your Azure subscription. If you are using TFS or if you do not see
+     If you are using Azure DevOps and if you see an **Authorize** button next to the input, click on it to authorize Azure DevOps to connect to your Azure subscription. If you are using Azure DevOps Server or if you do not see
      the desired Azure subscription in the list of subscriptions, see [Azure Resource Manager service connection](../../library/connect-to-azure.md) to manually set up the connection.
 
    - **Resource Group**: Enter or select the resource group of your **AKS cluster**.  
@@ -84,7 +84,7 @@ Configure the properties as follows:
 4. Again click on **+** icon to add another **Package and deploy Helm charts** task
    Configure the properties as follows:
    
-   - **Command**: Select **package** as Helm command.    When you select **package** as the helm command, the task recognizes it and shows only the relevant fields.
+   - **Command**: Select **package** as Helm command. When you select **package** as the helm command, the task recognizes it and shows only the relevant fields.
 
    - **Chart Path**: Enter the path to your Helm chart. 
    
