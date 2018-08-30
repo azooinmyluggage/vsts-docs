@@ -26,7 +26,7 @@ A Helm chart consists of metadata, definitions, config and documentation. This c
 Helm can package these files into a chart archive (*.tgz file), which gets deployed to a Kubernetes cluster. 
 
 A typical Continuous integration flow with Helm will have the following structure: 
-![Helm Chart Example](_img/Helmchart_example.png)
+![Helm Chart CI Flow](_img/Helmchart_CIflow.png)
 
 The steps required to build a container image and pushing it to a container registry remains the same. Once that has been the done, we start creating a Helm Chart archive package. 
 
@@ -84,9 +84,10 @@ Configure the properties as follows:
 4. Again click on **+** icon to add another **Package and deploy Helm charts** task
    Configure the properties as follows:
    
-   - **Command**: Select **package** as Helm command. When you select **package** as the helm command, the task recognizes it and shows only the relevant fields.
+   - **Command**: Select **package** as Helm command. You can run any Helm command by using the task and passing command options as arguments.
+   When you select **package** as the helm command, the task recognizes it and shows only the relevant fields.
 
-   - **Chart Path**: Enter the path to your Helm chart. 
+   - **Chart Path**: Enter the path to your Helm chart. Chart path can be a path to a packaged chart or a path to an unpacked chart directory. For example if ‘./redis’ is specified the task will run ‘helm package ./redis’.
    
    -**Version**: Specify a semver version to be set on the chart.
    
