@@ -53,7 +53,7 @@ To set up a continuous integration (CI) build process, see:
 
 ## Example
 
-If you want some sample code that works with this guidance, import (into VSTS or TFS) or fork (into GitHub) this repo:
+If you want some sample code that works with this guidance, import (into Azure DevOps or Azure DevOps Server) or fork (into GitHub) this repo:
 
 ```
 https://github.com/adventworks/dotnetcore-k8s-sample
