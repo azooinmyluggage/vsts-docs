@@ -30,7 +30,7 @@ A typical Continuous integration flow with Helm will have the following structur
 
 The steps required to build a container image and pushing it to a container registry remains the same. Once that has been the done, we start creating a Helm Chart archive package. 
 
-Azure DevOps has built-in support for Helm charts:
+Azure Pipelines has built-in support for Helm charts:
 1.	Helm Tool installer task can be used to get the right version of Helm on the agents.
 2.	Helm package and deploy task can be used to package the application and deploy it to a Kubernetes cluster.
 3.	You can use the task to install/update Tiller to a Kubernetes namespace, securely connect to the Tiller over TLS for deploying charts, use the task to run any Helm command like lint
@@ -51,14 +51,6 @@ To set up a continuous integration (CI) build process, see:
 
 * [Build and publish a Docker image](../../languages/docker.md).
 
-## Example
-
-If you want some sample code that works with this guidance, import (into Azure DevOps or Azure DevOps Server) or fork (into GitHub) this repo:
-
-```
-https://github.com/adventworks/dotnetcore-k8s-sample
-
-```
 
 ## Package and publish a Helm chart
 
